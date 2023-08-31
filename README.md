@@ -161,19 +161,23 @@ function Menu() {
 ## Restricting focus to a certain component boundaries
 Sometimes you don't want the focus to leave your component, for example when displaying a Popup, you don't want the focus to go to
 a component underneath the Popup. This can be enabled with `isFocusBoundary` flag passed to the `useFocusable` hook.
+You can also exclude directions in which focus can't leave by passing `boundaryExcludedDirections` as a prop
 
 ```jsx
 import React, { useEffect } from 'react';
 import { useFocusable, FocusContext } from '@noriginmedia/norigin-spatial-navigation';
 
 function Popup() {
-  const { ref, focusKey, focusSelf } = useFocusable({isFocusBoundary: true});
+  const { ref, focusKey, focusSelf } = useFocusable({isFocusBoundary: true, boundaryExcludedDirections: [NavigationDirection.UP]});
 
   useEffect(() => {
     focusSelf();
   }, [focusSelf]);
 
   return (<FocusContext.Provider value={focusKey}>
+    <div>
+      <CloseButton />
+    </div>
     <div ref={ref}>
       <ButtonPrimary />
       <ButtonSecondary />
@@ -327,6 +331,10 @@ This flag makes the Focusable Container keep the focus inside its boundaries. It
 the Container via directional navigation. You can still set the focus manually anywhere via `setFocus`.
 Useful when i.e. you have a modal Popup and you don't want the focus to leave it.
 
+##### `boundaryExcludedDirections` (optional)
+If you want a focus boundary to only work for certain directions, you can pass an array of `NavigationDirection`'s to exclude from the boundary.
+Useful to restrict focus to certain directions
+
 ##### `focusKey` (optional)
 If you want your component to have a persistent focus key, it can be set via this property. Otherwise, it will be auto generated.
 Useful when you want to manually set the focus to this component via `setFocus`.
@@ -445,6 +453,15 @@ type PressedKeys = { [index: string]: number };
 ```ts
 interface FocusDetails {
   event?: KeyboardEvent;
+}
+```
+### `NavigationDirection`
+```ts
+enum NavigationDirection {
+  LEFT = 'left',
+  RIGHT = 'right',
+  UP = 'up',
+  DOWN = 'down',
 }
 ```
 
