@@ -1137,7 +1137,7 @@ class SpatialNavigationService {
     autoRestoreFocus,
     focusable,
     isFocusBoundary,
-    boundaryExcludedDirections = []
+    boundaryExcludedDirections,
   }: FocusableComponent) {
     this.focusableComponents[focusKey] = {
       focusKey,
