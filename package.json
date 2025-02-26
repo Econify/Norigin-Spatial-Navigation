@@ -12,7 +12,6 @@
     "start": "webpack-dev-server --config webpack.config.dev.js",
     "build": "webpack --config webpack.config.prod.js",
     "prepublishOnly": "npm run eslint",
-    "prepare": "npm run build",
     "publish": "npm publish --access public",
     "test": "jest",
     "test:coverage": "jest --collect-coverage"

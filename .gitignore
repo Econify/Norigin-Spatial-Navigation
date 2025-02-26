@@ -13,7 +13,7 @@ node_modules
 .DS_Store
 
 # Build folder
-dist
+# dist
 
 # Ignore test coverage reports
 coverage
