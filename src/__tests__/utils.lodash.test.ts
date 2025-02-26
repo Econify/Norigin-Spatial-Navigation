@@ -93,6 +93,34 @@ describe('lodash utils', () => {
       jest.advanceTimersByTime(100);
       expect(func).not.toHaveBeenCalled();
     });
+
+    it('should debounce a function with leading option and reset timeout correctly', () => {
+      const func = jest.fn();
+      const debouncedFunc = debounce(func, 100, { leading: true });
+      debouncedFunc(); // Should call immediately
+      jest.advanceTimersByTime(10);
+      debouncedFunc(); // Should not call immediately, should reset timeout
+      jest.advanceTimersByTime(90);
+      expect(func).toHaveBeenCalledTimes(1);
+      jest.advanceTimersByTime(10);
+      expect(func).toHaveBeenCalledTimes(2); // Should call after wait period
+    });
+
+    it('should debounce a function with leading option and handle multiple rapid calls', () => {
+      const func = jest.fn();
+      const debouncedFunc = debounce(func, 100, { leading: true });
+      debouncedFunc(); // Should call immediately
+      jest.advanceTimersByTime(10);
+      debouncedFunc();
+      debouncedFunc();
+      debouncedFunc(); // Should not call immediately, should reset timeout
+      jest.advanceTimersByTime(10);
+      debouncedFunc(); // Should not call immediately, should reset timeout again
+      jest.advanceTimersByTime(80);
+      expect(func).toHaveBeenCalledTimes(1);
+      jest.advanceTimersByTime(20);
+      expect(func).toHaveBeenCalledTimes(2); // Should call after wait period
+    });
   });
 
   describe('throttle', () => {
