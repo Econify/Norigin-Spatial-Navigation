@@ -218,5 +218,7 @@ describe('SpatialNavigation', () => {
     SpatialNavigation.navigateByDirection('right', {});
 
     expect(onBoundaryHitMock).toHaveBeenCalledTimes(4)
+    expect(SpatialNavigation.getCurrentFocusKey()).toBe('child-3');
+
   });
 });
