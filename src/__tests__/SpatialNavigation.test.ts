@@ -131,6 +131,7 @@ describe('SpatialNavigation', () => {
       focusable: true,
       onEnterPress: () => {},
       onEnterRelease: () => {},
+      onBoundaryHit: () => {},
       onFocus: () => {},
       onBlur: () => {},
       onArrowPress: () => true,
@@ -160,5 +161,62 @@ describe('SpatialNavigation', () => {
     SpatialNavigation.navigateByDirection('right', {});
 
     expect(SpatialNavigation.getCurrentFocusKey()).toBe('child-3');
+  });
+
+  it('should trigger onBoundaryHit handler when boundary is hit', () => {
+    const onBoundaryHitMock = jest.fn();
+    createHorizontalLayout();
+    SpatialNavigation.updateFocusable(ROOT_FOCUS_KEY, {
+      node: {
+        offsetLeft: 0,
+        offsetTop: 0,
+        offsetWidth: 1920,
+        offsetHeight: 1280,
+        parentElement: {
+          offsetLeft: 0,
+          offsetTop: 0,
+          offsetWidth: 1920,
+          offsetHeight: 1280
+        } as HTMLElement,
+        offsetParent: {
+          offsetLeft: 0,
+          offsetTop: 0,
+          scrollLeft: 0,
+          scrollTop: 0,
+          offsetWidth: 1920,
+          offsetHeight: 1280,
+          nodeType: Node.ELEMENT_NODE
+        } as HTMLElement
+      } as unknown as HTMLElement,
+      isFocusBoundary: true,
+      focusable: true,
+      onEnterPress: () => {},
+      onEnterRelease: () => {},
+      onBoundaryHit: onBoundaryHitMock,
+      onFocus: () => {},
+      onBlur: () => {},
+      onArrowPress: () => true,
+      onArrowRelease: () => {},
+    })
+
+    expect(SpatialNavigation.getCurrentFocusKey()).not.toBe('child-1');
+    SpatialNavigation.navigateByDirection('right', {});
+
+    expect(SpatialNavigation.getCurrentFocusKey()).toBe('child-1');
+    SpatialNavigation.navigateByDirection('right', {});
+
+    expect(SpatialNavigation.getCurrentFocusKey()).toBe('child-2');
+    SpatialNavigation.navigateByDirection('right', {});
+
+    expect(SpatialNavigation.getCurrentFocusKey()).toBe('child-3');
+
+    SpatialNavigation.navigateByDirection('right', {});
+    expect(onBoundaryHitMock).toHaveBeenCalledWith('right');
+
+    SpatialNavigation.navigateByDirection('right', {});
+    SpatialNavigation.navigateByDirection('right', {});
+    SpatialNavigation.navigateByDirection('right', {});
+
+    expect(onBoundaryHitMock).toHaveBeenCalledTimes(4)
   });
 });

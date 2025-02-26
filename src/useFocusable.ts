@@ -24,6 +24,8 @@ export type EnterPressHandler<P = object> = (
 
 export type EnterReleaseHandler<P = object> = (props: P) => void;
 
+export type BoundaryHitHandler<P = object> = (boundaryDirection: Direction, props: P) => void;
+
 export type ArrowPressHandler<P = object> = (
   direction: string,
   props: P,
@@ -59,6 +61,7 @@ export interface UseFocusableConfig<P = object> {
   preferredChildFocusKey?: string;
   onEnterPress?: EnterPressHandler<P>;
   onEnterRelease?: EnterReleaseHandler<P>;
+  onBoundaryHit?: BoundaryHitHandler<P>;
   onArrowPress?: ArrowPressHandler<P>;
   onArrowRelease?: ArrowReleaseHandler<P>;
   onFocus?: FocusHandler<P>;
@@ -86,6 +89,7 @@ const useFocusableHook = <P>({
   preferredChildFocusKey,
   onEnterPress = noop,
   onEnterRelease = noop,
+  onBoundaryHit = noop,
   onArrowPress = () => true,
   onArrowRelease = noop,
   onFocus = noop,
@@ -102,6 +106,10 @@ const useFocusableHook = <P>({
   const onEnterReleaseHandler = useCallback(() => {
     onEnterRelease(extraProps);
   }, [onEnterRelease, extraProps]);
+
+  const onBoundaryHitHandler = useCallback((boundaryDirection: Direction) => {
+    onBoundaryHit(boundaryDirection, extraProps)
+  },[extraProps, onBoundaryHit])
 
   const onArrowPressHandler = useCallback(
     (direction: string, details: KeyPressDetails) =>
@@ -159,6 +167,7 @@ const useFocusableHook = <P>({
       preferredChildFocusKey,
       onEnterPress: onEnterPressHandler,
       onEnterRelease: onEnterReleaseHandler,
+      onBoundaryHit: onBoundaryHitHandler,
       onArrowPress: onArrowPressHandler,
       onArrowRelease: onArrowReleaseHandler,
       onFocus: onFocusHandler,
@@ -193,6 +202,7 @@ const useFocusableHook = <P>({
       focusBoundaryDirections,
       onEnterPress: onEnterPressHandler,
       onEnterRelease: onEnterReleaseHandler,
+      onBoundaryHit: onBoundaryHitHandler,
       onArrowPress: onArrowPressHandler,
       onArrowRelease: onArrowReleaseHandler,
       onFocus: onFocusHandler,
@@ -206,6 +216,7 @@ const useFocusableHook = <P>({
     focusBoundaryDirections,
     onEnterPressHandler,
     onEnterReleaseHandler,
+    onBoundaryHitHandler,
     onArrowPressHandler,
     onArrowReleaseHandler,
     onFocusHandler,

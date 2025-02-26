@@ -79,6 +79,7 @@ interface FocusableComponent {
   parentFocusKey: string;
   onEnterPress: (details?: KeyPressDetails) => void;
   onEnterRelease: () => void;
+  onBoundaryHit: (boundaryDirection: Direction) => void;
   onArrowPress: (direction: string, details: KeyPressDetails) => boolean;
   onArrowRelease: (direction: string) => void;
   onFocus: (layout: FocusableComponentLayout, details: FocusDetails) => void;
@@ -106,6 +107,7 @@ interface FocusableComponentUpdatePayload {
   focusBoundaryDirections?: Direction[];
   onEnterPress: (details?: KeyPressDetails) => void;
   onEnterRelease: () => void;
+  onBoundaryHit: (direction: Direction) => void;
   onArrowPress: (direction: string, details: KeyPressDetails) => boolean;
   onArrowRelease: (direction: string) => void;
   onFocus: (layout: FocusableComponentLayout, details: FocusDetails) => void;
@@ -145,10 +147,10 @@ export interface FocusDetails {
 }
 
 export type BackwardsCompatibleKeyMap = {
-  [index: string]: string | number | (number | string)[];
+  [index in Direction]?: string | number | (number | string)[];
 };
 
-export type KeyMap = { [index: string]: (string | number)[] };
+export type KeyMap = { [index in Direction]?: (string | number)[] };
 
 const getChildClosestToOrigin = (
   children: FocusableComponent[],
@@ -174,7 +176,7 @@ const normalizeKeyMap = (keyMap: BackwardsCompatibleKeyMap) => {
   const newKeyMap: KeyMap = {};
 
   Object.entries(keyMap).forEach(([key, value]) => {
-    newKeyMap[key] = Array.isArray(value) ? value : [value];
+    newKeyMap[key as Direction] = Array.isArray(value) ? value : [value];
   });
 
   return newKeyMap;
@@ -805,7 +807,7 @@ class SpatialNavigationService {
             codeList.includes(keyCode)
           );
 
-          this.smartNavigate(direction, null, { event });
+          this.smartNavigate(direction as Direction, null, { event });
         }
       };
 
@@ -959,12 +961,12 @@ class SpatialNavigationService {
    * @example
    * navigateByDirection('right') // The focus is moved to right
    */
-  navigateByDirection(direction: string, focusDetails: FocusDetails) {
+  navigateByDirection(direction: Direction, focusDetails: FocusDetails) {
     if (this.paused === true || !this.enabled || this.nativeMode) {
       return;
     }
 
-    const validDirections = [
+    const validDirections: Direction[] = [
       DIRECTION_DOWN,
       DIRECTION_UP,
       DIRECTION_LEFT,
@@ -988,7 +990,7 @@ class SpatialNavigationService {
    * Based on the Direction
    */
   smartNavigate(
-    direction: string,
+    direction: Direction,
     fromParentFocusKey: string,
     focusDetails: FocusDetails
   ) {
@@ -1137,6 +1139,9 @@ class SpatialNavigationService {
 
         if (!parentComponent || !focusBoundaryDirections.includes(direction)) {
           this.smartNavigate(direction, parentFocusKey, focusDetails);
+        } else {
+          currentComponent.onBoundaryHit(direction);
+          parentComponent.onBoundaryHit(direction);
         }
       }
     }
@@ -1306,6 +1311,7 @@ class SpatialNavigationService {
     parentFocusKey,
     onEnterPress,
     onEnterRelease,
+    onBoundaryHit,
     onArrowPress,
     onArrowRelease,
     onFocus,
@@ -1327,6 +1333,7 @@ class SpatialNavigationService {
       parentFocusKey,
       onEnterPress,
       onEnterRelease,
+      onBoundaryHit,
       onArrowPress,
       onArrowRelease,
       onFocus,
@@ -1711,6 +1718,7 @@ class SpatialNavigationService {
       focusBoundaryDirections,
       onEnterPress,
       onEnterRelease,
+      onBoundaryHit,
       onArrowPress,
       onFocus,
       onBlur
@@ -1729,6 +1737,7 @@ class SpatialNavigationService {
       component.focusBoundaryDirections = focusBoundaryDirections;
       component.onEnterPress = onEnterPress;
       component.onEnterRelease = onEnterRelease;
+      component.onBoundaryHit = onBoundaryHit
       component.onArrowPress = onArrowPress;
       component.onFocus = onFocus;
       component.onBlur = onBlur;
